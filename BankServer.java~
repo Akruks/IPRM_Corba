@@ -1,0 +1,90 @@
+import org.omg.CosNaming.*;
+import org.omg.CosNaming.NamingContextPackage.*;
+import org.omg.CORBA.*;
+import org.omg.PortableServer.*;
+import org.omg.PortableServer.POA;
+import java.util.Properties;
+
+// object implementation (servant)
+class BankImpl extends BankPOA {
+    
+    public Account create() {
+	return new Account();
+    }    
+    
+    public void destroy(Account a) {
+	a.delete();
+    }    
+
+    public Account move(Bank old_bank, Account old_account) {
+	return new Account();
+    } 
+ 
+}
+
+class AccountImpl extends AccountPOA {
+
+    long solde;
+
+    public void deposit(unsigned long amount){
+	this.solde += amount;
+    }
+
+    public void withdraw(unsigned long amount){
+	
+	if(this.solde - amount > 0)
+	    this.solde -= amount;
+	    
+	else
+	    System.err.println("NOT ENOUGH FUNDS");
+    }
+
+    public long balance(){
+	return this.solde;
+    }
+
+}
+
+
+
+// server program
+public class BankServer {
+    
+    public static void main(String args[]) {
+
+	org.omg.CORBA.Object objRef;
+
+	try{
+	    
+	    // create and initialize the ORB
+	    ORB orb = ORB.init(args, null);
+	    
+	    // get reference to rootpoa & activate the POAManager
+	    POA rootpoa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
+	    rootpoa.the_POAManager().activate();
+
+	    // get the naming service
+	    objRef = orb.resolve_initial_references("NameService");
+	    NamingContextExt ncRef = NamingContextExtHelper.narrow(objRef);
+	    
+	    // get object reference from the servant
+	    AccountImpl accountImpl = new AccountImpl();
+	    objRef = rootpoa.servant_to_reference(AccountImpl);
+	    
+	    // bind the object reference in the naming service
+	    String name = "echo.echo"; // id.kind
+	    NameComponent path[] = ncRef.to_name(name);
+	    ncRef.rebind(path, objRef);
+	    
+	    // wait for invocations from clients
+	    System.out.println("EchoServer ready and waiting...");
+	    orb.run(); // blocking...
+	} 
+	
+	catch (Exception e) {
+	    System.err.println("ERROR: " + e);
+	    e.printStackTrace(System.out);
+	}
+	
+    }
+}

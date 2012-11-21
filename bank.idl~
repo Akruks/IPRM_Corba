@@ -1,0 +1,14 @@
+// bank.idl
+
+interface Account {
+  void deposit(in unsigned long amount);
+  void withdraw(in unsigned long amount);
+  long balance();
+};
+
+interface Bank {
+  Account create ();
+  void destroy(in Account a);
+  Account move(in Bank old_bank, in Account old_account);
+};
+

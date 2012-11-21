@@ -1,0 +1,19 @@
+// bank.idl
+
+interface Account {
+  void deposit(in unsigned long amount);
+  void withdraw(in unsigned long amount);
+  long balance();
+  string _toString();
+
+  
+};
+
+interface Bank {
+  Account create (out long id);
+  void destroy(in Account a);
+  Account move(in Bank old_bank, in Account old_account);
+  Account lookup(in long id);
+  string _toString();
+};
+
