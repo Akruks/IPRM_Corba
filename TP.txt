@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+TP CORBA
+=========
+
+Documentation
+--------------
+
+  - CORBA en Java : http://java.sun.com/j2se/1.4.2/docs/api
+  - Tutorial Java : http://download.oracle.com/javase/6/docs/technotes/guides/idl/jidlExample.html
+  - CORBA en C++ avec OmniORB : http://omniorb.sourceforge.net
+
+A) Echo en Java et C++
+------------------------
+
+Vous disposez avec les fichiers echo-java.tgz et echo-cpp-omninorb.tgz de
+l'implantation dans les langages Java et C++ du service suivant :
+
+  interface Echo 
+  {
+    string echoString(in string mesg);
+  };
+
+
+1) Configuration de votre environnement Linux
+
+  - Pour CORBA Java, il suffit de vérifier que vous disposez de Java
+    >= 1.4. Le compilateur IDL s'appelle "idlj", le service de nommage
+    se nomme "tnameserv".
+
+  - Pour CORBA C++, nous utilisons l'ORB OmniORB. Le compilateur IDL
+    s'appelle "omniidl", le service de nommage se nomme "omniNames".
+    Vous pouvez configurer votre environnement de la façon suivante :
+
+      $ source echo-cpp-omniorb/omniorb.sh
+
+2) Compilation et exécution de Echo en Java et en C++
+
+  a) Lire les consignes dans les fichiers README.txt.
+
+  b) Reproduire l'expérience sur deux machines distinctes.
+
+  c) Reproduire l'expérience en mixant un client Java et un serveur
+     C++ et réciproquement.
+
+     Nota Bene : on utilisera de préférence le service de nommage de
+     Java (tnameserv).
+
+3) Ajouter une méthode "long echoLong(in long x)" dans le contrat IDL
+de Echo et tester là...
+
+  IMPORTANT : recompiler l'IDL et chercher la projection de la méthode
+  echoLong() dans le fichier généré EchoOperations.java. Il faut
+  implanter le prototype exact, sinon çà ne marche pas !
+  
+4) Remplacer les méthodes echoLong() et echoString() par une seule méthode 
+   "any echo(in any a)" manipulant le type any. [BONUS]
+
+B) Compte Banquaire
+--------------------
+
+  Implanter en Java le service client/serveur de compte banquaire
+  définit par l'interface Bank.idl.
+
+  interface Account {
+    void deposit(in unsigned long amount );
+    void withdraw(in unsigned long amount );
+    long balance();
+  };
+
+  interface Bank {
+    Account create ();
+    void destroy(in Account a);
+    Account move(in Bank target, in Account a);
+  };
+
+Note : La méthode move() utilisera les méthodes balance(), destroy(),
+create() et deposit().
+
+Pour aller plus loin, on modifiera l'IDL pour que la Bank gère des numéros 
+de comptes. Par exemple :
+
+  - Account create(out long id);
+  - Account lookup(in long id);
+
+
+C) Persistance (bonus au choix)
+--------------------------------
+
+Reprendre l'exemple Echo pour le rendre persistant. Pour ce faire, il
+faut utiliser orbd à la place de tnameserv et préciser que le POA est
+persistant comme ceci :
+
+    import org.omg.CORBA.Policy;
+
+    POA rootPOA = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
+    Policy[] policy = new Policy[1];
+    policy[0] = rootPOA.create_lifespan_policy(LifespanPolicyValue.PERSISTENT);
+    POA persistentPOA = rootPOA.create_POA("persistentPOA", null, policy); 
+
+Réaliser le déploiement de l'application à l'aide de la commande servertool 
+
+Plus d'infos :
+
+    http://download.oracle.com/javase/1.4.2/docs/guide/idl/jidlExample2.html
+    http://java.sun.com/javase/6/docs/technotes/tools/share/orbd.html
+
+D) CORBA en Python (bonus au choix)
+------------------------------------
+
+Ecrire un client Echo en langage Python avec OmniORBpy. Des exemples
+sont disponibles dans ~esnard/opt/omniORBpy-3.4/examples.
+
+Pour vous aider, consulter la documentation :
+
+  - OmniORBpy : http://omniorb.sourceforge.net/omnipy3/omniORBpy/
+  - Tutoriel Python : http://docs.python.org/
+
+--
+Aurélien Esnard
+
+
+
+
