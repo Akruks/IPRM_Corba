@@ -1,8 +1,9 @@
 // EchoClient.java
 
-import org.omg.CosNaming.*;
-import org.omg.CosNaming.NamingContextPackage.*;
-import org.omg.CORBA.*;
+import org.omg.CORBA.ORB;
+import org.omg.CosNaming.NamingContextExt;
+import org.omg.CosNaming.NamingContextExtHelper;
+
 
 // client program
 public class BankClient
